@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 export default (req, res, next) => {
   const authHeader = req.get("Authorization");
@@ -10,7 +12,7 @@ export default (req, res, next) => {
   const token = authHeader.split(" ")[1];
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, "randomsupersecretsecret");
+    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
     err.statusCode = 500;
     throw err;

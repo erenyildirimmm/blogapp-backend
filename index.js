@@ -1,5 +1,4 @@
 import express from "express";
-import { PORT, mongoDBURL } from "./config.js";
 import mongoose from "mongoose";
 import bookRoute from "./routes/bookRoute.js";
 import { fileURLToPath } from "url";
@@ -9,6 +8,10 @@ import cors from "cors";
 import { v4 as uuid4 } from "uuid";
 import multer, { diskStorage } from "multer";
 import path from "path";
+import dotenv from "dotenv";
+dotenv.config();
+
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 
@@ -69,7 +72,9 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(mongoDBURL)
+  .connect(
+    `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/${process.env.MONGODB_DB}?retryWrites=true&w=majority`
+  )
   .then(() => {
     console.log("App connected to database");
     app.listen(PORT, () => {

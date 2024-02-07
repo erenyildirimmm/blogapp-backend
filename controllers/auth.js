@@ -3,6 +3,8 @@ import { User } from "../models/userModel.js";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import errorHandling from "../util/errors.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const signup = async (req, res, next) => {
   const errors = validationResult(req);
@@ -52,7 +54,7 @@ export const signin = async (req, res, next) => {
         email: loadedUser.email,
         userId: loadedUser._id.toString(),
       },
-      "randomsupersecretsecret",
+      process.env.JWT_SECRET,
       { algorithm: "HS256", expiresIn: "1h" }
     );
     res.status(200).json({
