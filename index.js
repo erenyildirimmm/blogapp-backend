@@ -13,8 +13,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
-const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/${process.env.MONGODB_DB}?retryWrites=true&w=majority`;
-
 const app = express();
 
 app.use(express.json());
@@ -74,7 +72,9 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(uri)
+  .connect(
+    `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/${process.env.MONGODB_DB}?retryWrites=true&w=majority`
+  )
   .then(() => {
     console.log("App connected to database");
     app.listen(PORT, () => {
