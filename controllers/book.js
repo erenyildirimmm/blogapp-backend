@@ -64,6 +64,7 @@ export const postBook = async (req, res, next) => {
 export const updatedBook = async (req, res, next) => {
   const { id } = req.params;
   const errors = validationResult(req);
+  console.log(id);
   try {
     if (!errors.isEmpty()) {
       const error = new Error("Validation failed, entered data is incorrect");
