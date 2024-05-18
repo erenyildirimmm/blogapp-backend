@@ -1,4 +1,4 @@
-# MERN Stack Application Backend
+# MERN Stack Blog App Application Backend
 
 This is the backend part of a MERN stack application. It provides RESTful API endpoints for managing resources and interacting with the MongoDB database.
 
