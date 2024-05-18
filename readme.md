@@ -29,7 +29,7 @@ Before you begin, ensure you have met the following requirements:
 2. Navigate to the backend directory:
 
     ```bash
-    cd your-repo-name/backend
+    cd blogapp-backend
     ```
 
 3. Install the dependencies:
