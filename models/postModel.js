@@ -14,7 +14,7 @@ const bookSchema = new Schema(
       type: String,
       required: true,
     },
-    author: {
+    entryHeadline: {
       type: String,
       required: true,
     },

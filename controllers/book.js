@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import { Book } from "../models/bookModels.js";
+import { Book } from "../models/postModel.js";
 import { User } from "../models/userModel.js";
 import { Category } from "../models/categoryModel.js";
 import errorHandling from "../util/errors.js";
@@ -7,19 +7,44 @@ import clearImage from "../util/clearImage.js";
 
 export const getBooks = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 7;
+    const skip = (page - 1) * limit;
+    
     const books = await Book.find()
+      .populate({
+        path: "creator",
+        select: "name",
+      })
+      .populate("category").skip(skip).limit(limit);
+      const total = await Book.countDocuments();
+
+    return res.status(200).json({
+      total: total,
+      data: books,
+      page,
+      pages: Math.ceil(total / limit),
+    });
+  } catch (err) {
+    errorHandling(err, req, res, next);
+  }
+};
+
+export const getBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const book = await Book.findById(id)
       .populate({
         path: "creator",
         select: "name",
       })
       .populate("category");
 
-    return res.status(200).json({
-      count: books.length,
-      data: books,
-    });
-  } catch (err) {
-    errorHandling(err, req, res, next);
+    return res.status(200).json(book);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
   }
 };
 
@@ -43,7 +68,7 @@ export const postBook = async (req, res, next) => {
       title: req.body.title,
       content: req.body.content,
       imageUrl: imageUrl,
-      author: req.body.author,
+      entryHeadline: req.body.entryHeadline,
       category: req.body.category,
       creator: req.userId,
     });
@@ -73,7 +98,7 @@ export const updatedBook = async (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
     let imageUrl = req.body.image;
-    const author = req.body.author;
+    const entryHeadline = req.body.entryHeadline;
     const category = req.body.category;
     if (req.file) {
       imageUrl = req.file.path.replace("\\", "/");
@@ -100,7 +125,7 @@ export const updatedBook = async (req, res, next) => {
     book.title = title;
     book.content = content;
     book.imageUrl = imageUrl;
-    book.author = author;
+    book.entryHeadline = entryHeadline;
     book.category = category;
 
     const result = book.save();
@@ -119,19 +144,6 @@ export const getCategory = async (req, res) => {
     res.status(200).json({ categories: categories, count: categories.length });
   } catch (err) {
     errorHandling(err, req, res, next);
-  }
-};
-
-export const getBook = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const book = await Book.findById(id).populate("category");
-
-    return res.status(200).json(book);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: error.message });
   }
 };
 

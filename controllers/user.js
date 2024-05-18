@@ -6,10 +6,17 @@ export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(id).populate({
       path: "books",
-      populate: {
-        path: "category",
-        model: "Category",
-      },
+      populate: [
+        {
+          path: "category",
+          model: "Category",
+        },
+        {
+          path: "creator",
+          model: "User",
+          select: "name", // Sadece creator'un ismini almak için
+        },
+      ],
     });
     if (!user) {
       const error = new Error("Kullanıcı bulunamadı.");
