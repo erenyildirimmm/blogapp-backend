@@ -5,7 +5,7 @@ export const getUser = async (req, res, next) => {
   const { id } = req.params;
   try {
     const user = await User.findById(id).populate({
-      path: "books",
+      path: "posts",
       populate: [
         {
           path: "category",
@@ -28,7 +28,7 @@ export const getUser = async (req, res, next) => {
       name: user.name,
       email: user.email,
       status: user.status,
-      books: user.books,
+      posts: user.posts,
     });
   } catch (err) {
     errorHandling(err, req, res, next);

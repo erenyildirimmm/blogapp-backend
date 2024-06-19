@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import {
-  postBook,
-  getBooks,
-  getBook,
-  updatedBook,
-  deleteBook,
+  createPost,
+  getPosts,
+  getPost,
+  updatedPost,
+  deletePost,
   getCategory,
-} from "../controllers/book.js";
+} from "../controllers/post.js";
 import isAuth from "../middleware/is-auth.js";
 
 const router = Router();
@@ -20,14 +20,14 @@ router.post(
     body("content").trim().isLength({ min: 10 }).notEmpty(),
     body("entryHeadline").trim().isLength({ min: 5 }).notEmpty(),
   ],
-  postBook
+  createPost
 );
 
-router.get("/", getBooks);
+router.get("/", getPosts);
 
 router.get("/categories", isAuth, getCategory);
 
-router.get("/:id", getBook);
+router.get("/:id", getPost);
 
 router.put(
   "/:id",
@@ -37,9 +37,9 @@ router.put(
     body("content").trim().isLength({ min: 100 }).notEmpty(),
     body("entryHeadline").trim().isLength({ min: 5 }).notEmpty(),
   ],
-  updatedBook
+  updatedPost
 );
 
-router.delete("/:id", isAuth, deleteBook);
+router.delete("/:id", isAuth, deletePost);
 
 export default router;
