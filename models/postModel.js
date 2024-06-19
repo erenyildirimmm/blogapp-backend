@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const bookSchema = new Schema(
+const postSchema = new Schema(
   {
     title: {
       type: String,
@@ -28,10 +28,37 @@ const bookSchema = new Schema(
       ref: "User",
       required: true,
     },
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
+    likes: {
+      type: Schema.Types.ObjectId,
+      ref: "Like",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export const Book = mongoose.model('Book', bookSchema);
+postSchema.virtual("commentsCount", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
+});
+
+postSchema.virtual("likesCount", {
+  ref: "Like",
+  localField: "_id",
+  foreignField: "postId",
+  count: true,
+});
+
+postSchema.set("toJSON", { virtuals: true });
+postSchema.set("toObject", { virtuals: true });
+
+export const Post = mongoose.model('Post', postSchema);

@@ -1,9 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
-import bookRoute from "./routes/bookRoute.js";
+import postRoute from "./routes/postRoute.js";
 import { fileURLToPath } from "url";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import commentRoute from "./routes/commentRoute.js";
+import likeRoute from "./routes/likeRoute.js";
 import cors from "cors";
 import { v4 as uuid4 } from "uuid";
 import multer, { diskStorage } from "multer";
@@ -60,9 +62,11 @@ app.get("/", (req, res) => {
   return res.status(234).send("Welcome To MERN Stack Tutorial");
 });
 
-app.use("/books", bookRoute);
+app.use("/posts", postRoute);
 app.use("/auth", authRoute);
 app.use("/users", userRoute);
+app.use("/comments", commentRoute);
+app.use("/likes", likeRoute);
 
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;

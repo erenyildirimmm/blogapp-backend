@@ -1,27 +1,30 @@
 import { validationResult } from "express-validator";
-import { Book } from "../models/postModel.js";
+import { Post } from "../models/postModel.js";
 import { User } from "../models/userModel.js";
 import { Category } from "../models/categoryModel.js";
 import errorHandling from "../util/errors.js";
 import clearImage from "../util/clearImage.js";
 
-export const getBooks = async (req, res, next) => {
+export const getPosts = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 7;
     const skip = (page - 1) * limit;
-    
-    const books = await Book.find()
+    const posts = await Post.find()
       .populate({
         path: "creator",
         select: "name",
       })
-      .populate("category").skip(skip).limit(limit);
-      const total = await Book.countDocuments();
+      .populate("commentsCount")
+      .populate("likesCount")
+      .populate("category")
+      .skip(skip)
+      .limit(limit);
+    const total = await Post.countDocuments();
 
     return res.status(200).json({
       total: total,
-      data: books,
+      data: posts,
       page,
       pages: Math.ceil(total / limit),
     });
@@ -30,25 +33,26 @@ export const getBooks = async (req, res, next) => {
   }
 };
 
-export const getBook = async (req, res) => {
+export const getPost = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-
-    const book = await Book.findById(id)
+    const post = await Post.findById(id)
       .populate({
         path: "creator",
         select: "name",
       })
-      .populate("category");
+      .populate("category")
+      .populate("commentsCount")
+      .populate("likesCount");
 
-    return res.status(200).json(book);
+    return res.status(200).json(post);
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: error.message });
   }
 };
 
-export const postBook = async (req, res, next) => {
+export const createPost = async (req, res, next) => {
   const errors = validationResult(req);
   try {
     if (!errors.isEmpty()) {
@@ -64,7 +68,7 @@ export const postBook = async (req, res, next) => {
       throw error;
     }
     const imageUrl = req.file.path.replace("\\", "/");
-    const newBook = new Book({
+    const newPost = new Post({
       title: req.body.title,
       content: req.body.content,
       imageUrl: imageUrl,
@@ -73,20 +77,20 @@ export const postBook = async (req, res, next) => {
       creator: req.userId,
     });
 
-    const book = await newBook.save();
+    const post = await newPost.save();
 
     const user = await User.findById(req.userId);
-    user.books.push(newBook);
+    user.posts.push(newPost);
     const creator = await user.save();
     return res
       .status(201)
-      .json({ message: "Özet başarılı bir şekilde oluşturuldu", data: book });
+      .json({ message: "Özet başarılı bir şekilde oluşturuldu", data: post });
   } catch (err) {
     errorHandling(err, req, res, next);
   }
 };
 
-export const updatedBook = async (req, res, next) => {
+export const updatedPost = async (req, res, next) => {
   const { id } = req.params;
   const errors = validationResult(req);
   try {
@@ -108,31 +112,31 @@ export const updatedBook = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const book = await Book.findById(id);
-    if (!book) {
-      const error = new Error("Could not find book.");
+    const post = await Post.findById(id);
+    if (!post) {
+      const error = new Error("Could not find post.");
       error.statusCode = 404;
       throw error;
     }
-    if (book.creator.toString() !== req.userId) {
+    if (post.creator.toString() !== req.userId) {
       const error = new Error("Not authorized!");
       error.statusCode = 403;
       throw error;
     }
-    if (imageUrl !== book.imageUrl) {
-      clearImage(book.imageUrl);
+    if (imageUrl !== post.imageUrl) {
+      clearImage(post.imageUrl);
     }
-    book.title = title;
-    book.content = content;
-    book.imageUrl = imageUrl;
-    book.entryHeadline = entryHeadline;
-    book.category = category;
+    post.title = title;
+    post.content = content;
+    post.imageUrl = imageUrl;
+    post.entryHeadline = entryHeadline;
+    post.category = category;
 
-    const result = book.save();
+    const result = post.save();
 
     return res
       .status(200)
-      .send({ message: "Book updated succesfully", updatedBook: result });
+      .send({ message: "Post updated succesfully", updatedPost: result });
   } catch (err) {
     errorHandling(err, req, res, next);
   }
@@ -147,26 +151,26 @@ export const getCategory = async (req, res) => {
   }
 };
 
-export const deleteBook = async (req, res, next) => {
+export const deletePost = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const book = await Book.findById(id);
-    if (!book) {
-      const error = new Error("Book not found");
+    const post = await Post.findById(id);
+    if (!post) {
+      const error = new Error("Post not found");
       error.statusCode = 404;
       throw error;
     }
-    if (book.creator.toString() !== req.userId) {
+    if (post.creator.toString() !== req.userId) {
       const error = new Error("Not authorized!");
       error.statusCode = 403;
       throw error;
     }
-    clearImage(book.imageUrl);
-    await Book.findByIdAndDelete(id);
+    clearImage(post.imageUrl);
+    await Post.findByIdAndDelete(id);
     const user = await User.findById(req.userId);
-    await user.books.pull(id);
+    await user.posts.pull(id);
     await user.save();
-    return res.status(200).send({ message: "Book deleted succesfully" });
+    return res.status(200).send({ message: "Post deleted succesfully" });
   } catch (err) {
     errorHandling(err, req, res, next);
   }
