@@ -14,9 +14,31 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      default: "user"
+    },
     status: {
       type: String,
       default: "I'm  new!",
+    },
+    socialMedia: {
+      facebook: {
+        type: String,
+        default: ""
+      },
+      x: {
+        type: String,
+        default: ""
+      },
+      instagram: {
+        type: String,
+        default: ""
+      },
+      linkedin: {
+        type: String,
+        default: ""
+      },
     },
     posts: [
       {

@@ -5,7 +5,7 @@ import { User } from "../models/userModel.js";
 
 const router = Router();
 
-router.put(
+router.post(
   "/signup",
   [
     body("email")
