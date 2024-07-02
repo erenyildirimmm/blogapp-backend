@@ -4,6 +4,7 @@ import { User } from "../models/userModel.js";
 import { Category } from "../models/categoryModel.js";
 import errorHandling from "../util/errors.js";
 import clearImage from "../util/clearImage.js";
+import mongoose from "mongoose";
 
 export const getPosts = async (req, res, next) => {
   try {
@@ -33,6 +34,23 @@ export const getPosts = async (req, res, next) => {
   }
 };
 
+export const getRelatedPosts = async (req, res, next) => {
+  const { category, limit } = req.query;
+  const { id } = req.params;
+  try {
+    const { ObjectId } = mongoose.Types;
+    const postId = new ObjectId(id);
+    const categoryObjectId = new ObjectId(category);
+    const posts = await Post.find({
+      _id: { $ne: postId }, // Mevcut postu hariç tut
+      category: categoryObjectId, // Belirtilen kategoriye ait olanlar
+    }).limit(parseInt(limit));
+    return res.status(200).json({ data: posts });
+  } catch (err) {
+    errorHandling(err, req, res, next);
+  }
+};
+
 export const getPost = async (req, res) => {
   const { id } = req.params;
   try {
@@ -47,7 +65,6 @@ export const getPost = async (req, res) => {
 
     return res.status(200).json(post);
   } catch (error) {
-    console.log(error);
     res.status(500).send({ message: error.message });
   }
 };
@@ -57,7 +74,7 @@ export const createPost = async (req, res, next) => {
   try {
     if (!errors.isEmpty()) {
       const error = new Error(
-        "Lürfen tüm alanları doğru bir şekilde doldurduğunuzdan ve boş alan bırakmadığınızdan emin olun"
+        "Lütfen tüm alanları doğru bir şekilde doldurduğunuzdan ve boş alan bırakmadığınızdan emin olun"
       );
       error.statusCode = 422;
       throw error;
@@ -82,9 +99,10 @@ export const createPost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.push(newPost);
     const creator = await user.save();
-    return res
-      .status(201)
-      .json({ message: "Özet başarılı bir şekilde oluşturuldu", data: post });
+    return res.status(201).json({
+      message: "Gönderi başarılı bir şekilde oluşturuldu",
+      data: post,
+    });
   } catch (err) {
     errorHandling(err, req, res, next);
   }

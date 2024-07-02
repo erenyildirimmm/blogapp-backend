@@ -7,6 +7,7 @@ import {
   updatedPost,
   deletePost,
   getCategory,
+  getRelatedPosts,
 } from "../controllers/post.js";
 import isAuth from "../middleware/is-auth.js";
 
@@ -24,6 +25,8 @@ router.post(
 );
 
 router.get("/", getPosts);
+
+router.get("/related/:id", getRelatedPosts);
 
 router.get("/categories", isAuth, getCategory);
 

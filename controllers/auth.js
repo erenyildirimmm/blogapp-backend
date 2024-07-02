@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const signup = async (req, res, next) => {
+  const { email, name, password, socialMedia } = req.body;
   const errors = validationResult(req);
   try {
     if (!errors.isEmpty()) {
@@ -15,14 +16,12 @@ export const signup = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    const email = req.body.email;
-    const name = req.body.name;
-    const password = req.body.password;
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = new User({
       email: email,
       password: hashedPassword,
       name: name,
+      socialMedia: socialMedia
     });
     const result = await user.save();
     res.status(201).json({ message: "User created!" });
