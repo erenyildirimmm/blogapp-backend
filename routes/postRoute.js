@@ -24,13 +24,13 @@ router.post(
   createPost
 );
 
-router.get("/", getPosts);
-
 router.get("/related/:id", getRelatedPosts);
 
 router.get("/categories", isAuth, getCategory);
 
-router.get("/:id", getPost);
+router.get("/detail/:id", getPost);
+
+router.get("/:category?/:search?/:page", getPosts);
 
 router.put(
   "/:id",

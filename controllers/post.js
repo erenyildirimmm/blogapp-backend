@@ -8,10 +8,18 @@ import mongoose from "mongoose";
 
 export const getPosts = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 7;
+    const { category, search, page = 1 } = req.params;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const posts = await Post.find()
+
+    let filter = {};
+    if (search != "all") {
+      filter.title = { $regex: String(search), $options: "i" }; // Başlıkta arama
+    }
+    if (category != "all") {
+      filter.category = category; // Kategori ile filtreleme
+    }
+    const posts = await Post.find(filter)
       .populate({
         path: "creator",
         select: "name",
@@ -44,7 +52,12 @@ export const getRelatedPosts = async (req, res, next) => {
     const posts = await Post.find({
       _id: { $ne: postId }, // Mevcut postu hariç tut
       category: categoryObjectId, // Belirtilen kategoriye ait olanlar
-    }).limit(parseInt(limit));
+    })
+      .populate({
+        path: "creator",
+        select: "name",
+      })
+      .limit(parseInt(limit));
     return res.status(200).json({ data: posts });
   } catch (err) {
     errorHandling(err, req, res, next);
