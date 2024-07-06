@@ -10,6 +10,11 @@ const postSchema = new Schema(
       type: String,
       required: true,
     },
+    slug: {
+      type: String,
+      required: true,
+      enique: true,
+    },
     imageUrl: {
       type: String,
       required: true,
@@ -61,4 +66,4 @@ postSchema.virtual("likesCount", {
 postSchema.set("toJSON", { virtuals: true });
 postSchema.set("toObject", { virtuals: true });
 
-export const Post = mongoose.model('Post', postSchema);
+export const Post = mongoose.model("Post", postSchema);

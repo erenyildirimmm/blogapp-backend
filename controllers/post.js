@@ -5,6 +5,8 @@ import { Category } from "../models/categoryModel.js";
 import errorHandling from "../util/errors.js";
 import clearImage from "../util/clearImage.js";
 import mongoose from "mongoose";
+import createUniqueSlug from "../util/createUniqueSlug.js";
+import slug from "slug";
 
 export const getPosts = async (req, res, next) => {
   try {
@@ -65,9 +67,9 @@ export const getRelatedPosts = async (req, res, next) => {
 };
 
 export const getPost = async (req, res) => {
-  const { id } = req.params;
+  const { slug } = req.params;
   try {
-    const post = await Post.findById(id)
+    const post = await Post.findOne({ slug })
       .populate({
         path: "creator",
         select: "name",
@@ -75,7 +77,13 @@ export const getPost = async (req, res) => {
       .populate("category")
       .populate("commentsCount")
       .populate("likesCount");
-
+    if (!post) {
+      const error = new Error(
+        "Blog not found!"
+      );
+      error.statusCode = 404;
+      throw error;
+    }
     return res.status(200).json(post);
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -84,6 +92,8 @@ export const getPost = async (req, res) => {
 
 export const createPost = async (req, res, next) => {
   const errors = validationResult(req);
+  const { title, content, entryHeadline, category } = req.body;
+  const newSlug = slug(title) + "-" + Date.now();
   try {
     if (!errors.isEmpty()) {
       const error = new Error(
@@ -99,14 +109,14 @@ export const createPost = async (req, res, next) => {
     }
     const imageUrl = req.file.path.replace("\\", "/");
     const newPost = new Post({
-      title: req.body.title,
-      content: req.body.content,
+      title: title,
+      content: content,
+      slug: newSlug,
       imageUrl: imageUrl,
-      entryHeadline: req.body.entryHeadline,
-      category: req.body.category,
+      entryHeadline: entryHeadline,
+      category: category,
       creator: req.userId,
     });
-
     const post = await newPost.save();
 
     const user = await User.findById(req.userId);

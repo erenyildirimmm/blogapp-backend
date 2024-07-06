@@ -26,9 +26,9 @@ router.post(
 
 router.get("/related/:id", getRelatedPosts);
 
-router.get("/categories", isAuth, getCategory);
+router.get("/categories", getCategory);
 
-router.get("/detail/:id", getPost);
+router.get("/detail/:slug", getPost);
 
 router.get("/:category?/:search?/:page", getPosts);
 
