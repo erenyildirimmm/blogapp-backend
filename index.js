@@ -4,6 +4,7 @@ import postRoute from "./routes/postRoute.js";
 import { fileURLToPath } from "url";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import adminRoute from "./routes/adminRoute.js";
 import commentRoute from "./routes/commentRoute.js";
 import likeRoute from "./routes/likeRoute.js";
 import cors from "cors";
@@ -64,6 +65,7 @@ app.get("/", (req, res) => {
 
 app.use("/posts", postRoute);
 app.use("/auth", authRoute);
+app.use("/admin", adminRoute);
 app.use("/users", userRoute);
 app.use("/comments", commentRoute);
 app.use("/likes", likeRoute);

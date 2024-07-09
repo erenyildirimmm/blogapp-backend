@@ -5,9 +5,9 @@ import { Comment } from "../models/commentModel.js";
 import errorHandling from "../util/errors.js";
 
 export const getUser = async (req, res, next) => {
-  const { id } = req.params;
+  const { username } = req.params;
   try {
-    const user = await User.findById(id).populate({
+    const user = await User.findOne({ username }).populate({
       path: "posts",
       populate: [
         {
@@ -17,7 +17,7 @@ export const getUser = async (req, res, next) => {
         {
           path: "creator",
           model: "User",
-          select: "name", // Sadece creator'un ismini almak için
+          select: "fullName username", // Sadece creator'un ismini almak için
         },
       ],
     });
@@ -28,7 +28,8 @@ export const getUser = async (req, res, next) => {
     }
     return res.status(200).json({
       userId: user._id.toString(),
-      name: user.name,
+      fullName: user.fullName,
+      username: user.username,
       email: user.email,
       status: user.status,
       posts: user.posts,

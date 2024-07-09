@@ -5,7 +5,6 @@ import { Category } from "../models/categoryModel.js";
 import errorHandling from "../util/errors.js";
 import clearImage from "../util/clearImage.js";
 import mongoose from "mongoose";
-import createUniqueSlug from "../util/createUniqueSlug.js";
 import slug from "slug";
 
 export const getPosts = async (req, res, next) => {
@@ -78,9 +77,7 @@ export const getPost = async (req, res) => {
       .populate("commentsCount")
       .populate("likesCount");
     if (!post) {
-      const error = new Error(
-        "Blog not found!"
-      );
+      const error = new Error("Blog not found!");
       error.statusCode = 404;
       throw error;
     }
@@ -132,7 +129,9 @@ export const createPost = async (req, res, next) => {
 };
 
 export const updatedPost = async (req, res, next) => {
-  const { id } = req.params;
+  const postSlug = req.params.slug;
+  const { title, content, entryHeadline, category, image } = req.body;
+  const newSlug = slug(title) + "-" + Date.now();
   const errors = validationResult(req);
   try {
     if (!errors.isEmpty()) {
@@ -140,11 +139,7 @@ export const updatedPost = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    const title = req.body.title;
-    const content = req.body.content;
-    let imageUrl = req.body.image;
-    const entryHeadline = req.body.entryHeadline;
-    const category = req.body.category;
+    let imageUrl = image;
     if (req.file) {
       imageUrl = req.file.path.replace("\\", "/");
     }
@@ -153,7 +148,7 @@ export const updatedPost = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const post = await Post.findById(id);
+    const post = await Post.findOne({ slug: postSlug });
     if (!post) {
       const error = new Error("Could not find post.");
       error.statusCode = 404;
@@ -169,6 +164,7 @@ export const updatedPost = async (req, res, next) => {
     }
     post.title = title;
     post.content = content;
+    post.slug = newSlug;
     post.imageUrl = imageUrl;
     post.entryHeadline = entryHeadline;
     post.category = category;

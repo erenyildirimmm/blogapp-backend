@@ -9,7 +9,7 @@ import isAuth from "../middleware/is-auth.js";
 const router = Router();
 
 router.get(
-  "/:id",
+  "/:username",
   getUser
 );
 

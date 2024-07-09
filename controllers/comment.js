@@ -29,7 +29,7 @@ export const getComment = async (req, res, next) => {
   try {
     const comments = await Comment.find({ postId: postId }).populate({
       path: "userId",
-      select: "name",
+      select: "fullName username",
     });
     return res.status(200).json(comments);
   } catch (error) {

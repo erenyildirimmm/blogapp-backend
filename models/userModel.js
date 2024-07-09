@@ -10,13 +10,18 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    name: {
+    fullName: {
       type: String,
       required: true,
     },
+    username: {
+      type: String,
+      required: true,
+      enique: true,
+    },
     role: {
       type: String,
-      default: "user"
+      default: "user",
     },
     status: {
       type: String,
@@ -25,19 +30,19 @@ const userSchema = new Schema(
     socialMedia: {
       facebook: {
         type: String,
-        default: ""
+        default: "",
       },
       x: {
         type: String,
-        default: ""
+        default: "",
       },
       instagram: {
         type: String,
-        default: ""
+        default: "",
       },
       linkedin: {
         type: String,
-        default: ""
+        default: "",
       },
     },
     posts: [

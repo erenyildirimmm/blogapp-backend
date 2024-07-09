@@ -33,7 +33,7 @@ router.get("/detail/:slug", getPost);
 router.get("/:category?/:search?/:page", getPosts);
 
 router.put(
-  "/:id",
+  "/:slug",
   isAuth,
   [
     body("title").trim().notEmpty(),

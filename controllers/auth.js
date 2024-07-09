@@ -4,10 +4,11 @@ import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import errorHandling from "../util/errors.js";
 import dotenv from "dotenv";
+import slug from "slug";
 dotenv.config();
 
 export const signup = async (req, res, next) => {
-  const { email, name, password, socialMedia } = req.body;
+  const { email, fullName, username, password, socialMedia } = req.body;
   const errors = validationResult(req);
   try {
     if (!errors.isEmpty()) {
@@ -20,8 +21,9 @@ export const signup = async (req, res, next) => {
     const user = new User({
       email: email,
       password: hashedPassword,
-      name: name,
-      socialMedia: socialMedia
+      fullName: fullName,
+      username: username,
+      socialMedia: socialMedia,
     });
     const result = await user.save();
     res.status(201).json({ message: "User created!" });
@@ -31,11 +33,12 @@ export const signup = async (req, res, next) => {
 };
 
 export const signin = async (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { emailOrUsername, password } = req.body;
   let loadedUser;
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    });
     if (!user) {
       const error = new Error("A user with this email could not be found");
       error.statusCode = 401;
@@ -59,9 +62,20 @@ export const signin = async (req, res, next) => {
     res.status(200).json({
       token: token,
       userId: loadedUser._id.toString(),
+      username: loadedUser.username,
       user: loadedUser,
+      role: loadedUser.role
     });
   } catch (err) {
     errorHandling(err, req, res, next);
   }
+};
+
+export const checkUsername = async (req, res, next) => {
+  const { username } = req.body;
+  const user = await User.findOne({ username });
+  if (user) {
+    return res.json(false);
+  }
+  return res.json(true);
 };
