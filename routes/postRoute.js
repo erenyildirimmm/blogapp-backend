@@ -10,12 +10,14 @@ import {
   getRelatedPosts,
 } from "../controllers/post.js";
 import isAuth from "../middleware/is-auth.js";
+import { uploadBlogImage } from "../middleware/multerConfig.js";
 
 const router = Router();
 
 router.post(
   "/",
   isAuth,
+  uploadBlogImage,
   [
     body("title").trim().notEmpty(),
     body("content").trim().isLength({ min: 10 }).notEmpty(),

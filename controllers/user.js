@@ -31,6 +31,7 @@ export const getUser = async (req, res, next) => {
       fullName: user.fullName,
       username: user.username,
       email: user.email,
+      avatar: user.avatar,
       status: user.status,
       posts: user.posts,
     });

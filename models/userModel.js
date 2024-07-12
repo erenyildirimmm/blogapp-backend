@@ -19,11 +19,20 @@ const userSchema = new Schema(
       required: true,
       enique: true,
     },
+    avatar: {
+      type: String,
+      default : "uploads/profiles/user.png"
+    },
     role: {
       type: String,
       default: "user",
     },
     status: {
+      type: String,
+      enum: ["Active", "Inactive", "Suspended", "Disabled"],
+      default: "Active",
+    },
+    bio: {
       type: String,
       default: "I'm  new!",
     },

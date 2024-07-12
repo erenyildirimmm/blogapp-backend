@@ -6,6 +6,7 @@ import errorHandling from "../util/errors.js";
 import clearImage from "../util/clearImage.js";
 import mongoose from "mongoose";
 import slug from "slug";
+import { normalize } from "path";
 
 export const getPosts = async (req, res, next) => {
   try {
@@ -23,7 +24,7 @@ export const getPosts = async (req, res, next) => {
     const posts = await Post.find(filter)
       .populate({
         path: "creator",
-        select: "name",
+        select: "fullName username",
       })
       .populate("commentsCount")
       .populate("likesCount")
@@ -104,7 +105,8 @@ export const createPost = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const imageUrl = req.file.path.replace("\\", "/");
+    const normalizedPath = normalize(req.file.path);
+    const imageUrl = normalizedPath.replace(/\\/g, "/");
     const newPost = new Post({
       title: title,
       content: content,
